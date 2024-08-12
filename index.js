@@ -67,9 +67,20 @@ async function getTransfersByLeagueId(id) {
     }
 }
 
-async function getNew(page) {
+async function getNews(page) {
     try {
         const response = await fetch(`https://www.fotmob.com/api/worldnews?lang=en&page=${page}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        throw error;
+    }
+}
+
+async function getNewsById(id) {
+    try {
+        const response = await fetch(`https://www.fotmob.com/api/news/news?id=${id}`);
         const data = await response.json();
         return data;
     } catch (error) {
@@ -119,15 +130,25 @@ app.get('/transfers', async (req, res) => {
 
 app.get('/news', async (req,res) => {
     const { page } = req.query;
+    const { id } = req.query;
     console.log('page:', page);
+
+    
     
     try {
-        const news = await getNew(page);
-        res.send(news);
+        const news = await getNews(page);
+        const newsById = await getNewsById(id);
+        if (page) {
+            res.send(news);
+            
+        } else if (id) {
+            res.send(newsById)
+        }
     } catch (error) {
         res.status(500).send({ message: 'Error fetching news', error });
     }
 })
+
 
 
 
